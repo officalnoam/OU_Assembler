@@ -53,3 +53,9 @@ dkms.conf
 
 # Checking files
 */testing_proof/*
+*.as
+*.am
+*.object
+*.externals
+*.entries
+
