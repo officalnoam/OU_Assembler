@@ -12,5 +12,8 @@ assembler/linked_list.o: assembler/linked_list.c assembler/linked_list.h assembl
 assembler/macro.o: assembler/marco.c assembler/macro.h assembler/linked_list.h
 	gcc -ansi -Wall -pedantic -c assembler/macro.c -o assembler/macro.o
 
+assembler/operations.o: assembler/operations.c assembler/operations.h assembler/boolean.h
+	gcc =ansi -Wall -pedantic -c assembler/operations.c -o assembler/operations.o
+
 cleanup:
 	rm assembler/*.o
