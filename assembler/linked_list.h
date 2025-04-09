@@ -23,5 +23,14 @@
     Node* head: The head of the list.
     void* freeDataFunction(void*): If not NULL, the function to use to free the data.
   */
-  void teardown_linked_list(Node* head, void (*freeDataFunction)(void*));
+  void teardown_linked_list(Node* head, void (*free_data_function)(void*));
+
+  /*
+  This function will add a node to the end of a linked list.
+  
+  Input-
+    Node* head: The head of the list.
+    Node* new_node: The node being added.
+  */
+  void add_node_to_end(Node* head, node* new_node);
 #endif

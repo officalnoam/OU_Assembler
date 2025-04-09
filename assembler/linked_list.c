@@ -23,18 +23,26 @@ Node* create_node(void* data)
 /*
 Teardown all nodes in the list by freeing them, and if needed their data.
 */
-void teardown_linked_list(Node* head, void (*freeDataFunction)(void*))
+void teardown_linked_list(Node* head, void (*free_data_function)(void*))
 {
   Node* prev = NULL;
   while (head != NULL)
   {
-    if (freeDataFunction != NULL)
-      freeDataFunction(head->data);
+    if (free_data_function != NULL)
+      free_data_function(head->data);
     
     prev = head;
     head = head->next;
     free(prev);
   }
+}
+
+/*Go over the entire linked list until the last item is reached, and then set its next to the new node*/
+void add_node_to_end(Node* head, Node* new_node)
+{
+  while (head->next != NULL)
+    head = head->next;
+  head->next = new_node;
 }
 
 /*
