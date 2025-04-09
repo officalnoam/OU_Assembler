@@ -85,6 +85,14 @@ char* get_argument(char* line, int* i, int line_num, char* file_name, bool start
       return NULL;
     }
   }
+  
+  /*If j is 0- there isn't an argument.*/
+  if (j == 0)
+  {
+    printf("Missing argument in file %s line %d.\n", file_name, line_num);
+    free(str);
+    return NULL;
+  }
   str[j] = '\0';
   return str;
 }

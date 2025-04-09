@@ -32,5 +32,5 @@
     Node* head: The head of the list.
     Node* new_node: The node being added.
   */
-  void add_node_to_end(Node* head, node* new_node);
+  void add_node_to_end(Node* head, Node* new_node);
 #endif
