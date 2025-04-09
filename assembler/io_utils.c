@@ -41,6 +41,7 @@ char* get_file_line(FILE* file, char* file_name, bool* error_reached)
   if (file_line == NULL)
   {
     perror("Memory allocation failed.\n");
+    *error_reached = true;
     return NULL;
   }
   
