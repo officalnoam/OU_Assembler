@@ -1,6 +1,7 @@
 #ifndef COMMANDS
   #include "boolean.h"
-  
+  #include "addressing.h"
+ 
   #define COMMANDS
   
   /*Includes macro and endmacro, commands and directives. extern get an addition to the name due to it being a keyword in c*/
@@ -70,4 +71,24 @@
     int: The commands opcode.
   */
   int get_command_opcode(operation op); 
+
+  /*
+  This function will validate the arguments, according to their addressing type.
+  
+  Input-
+    operation op: The command.
+    addressing* target: The addressing type for the target argument. NULL if there isn't one.
+    addressing* source: The addressing type for the source argument. NULL if there isn't one.
+  */ 
+  bool validate_args(operation op, addressing target, addressing source);
+  
+  /*
+  This function will return the amount of arguments the command has.
+  
+  Input-
+    operation op: The command.
+  Output-
+    int: The amount of arguments the command should have.
+  */
+  int get_command_arg_amount(operation op);
 #endif

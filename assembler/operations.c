@@ -106,12 +106,92 @@ int get_command_opcode(operation op)
 }
 
 /*
+Depending on the operation type, check that the addressing types for the source and target are in ranges they should be.
+*/
+bool validate_args(operation op, addressing target, addressing source)
+{
+  switch (op)
+  {
+    case mov:
+    case add:
+    case sub:
+    {
+      if (target == undefined_addressing || source == undefined_addressing || target == immediate)
+        return false;
+      return true;
+    }
+    case cmp:
+    {
+      if (target == undefined_addressing || source == undefined_addressing)
+        return false;
+      return true;
+    }
+    case lea:
+    {
+      if (target == undefined_addressing || source == undefined_addressing || target == immediate || source == immediate || source == register_addressing)
+        return false;
+      return true;
+    }  
+    case not:
+    case clr:
+    case inc:
+    case dec:
+    case jmp:
+    case bne:
+    case red:
+    case jsr:
+      if (target == undefined_addressing || source != undefined_addressing || target == immediate)
+        return false;
+      return true;
+    case prn:
+      if (target == undefined_addressing || source != undefined_addressing)
+        return false;
+      return true;
+    case rts:
+    case stop:
+      if (target != undefined_addressing || source != undefined_addressing)
+        return false;
+      return true;
+    /*A non command was passed*/
+    default:
+      return false;
+  }
+}
+/*Return the amount of arguments the command should have*/
+int get_command_arg_amount(operation op)
+{
+  switch (op)
+  {
+    case mov:
+    case add:
+    case sub:
+    case cmp:
+    case lea:
+      return 2;
+    case not:
+    case clr:
+    case inc:
+    case dec:
+    case jmp:
+    case bne:
+    case red:
+    case jsr:
+    case prn:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+/*
 Debug main function for checking specifically the functions within the file. Get the operation of several strings, check if they are commands, directives etc.
 */
 #ifdef DEBUG_OPERATIONS
   int main()
   {
     operation op = get_operation("Hello world");
+    addressing tmp1;
+    addressing tmp2;
     if (op == undefined)
       printf("Correct non operation parsing.\n");
     
@@ -120,6 +200,11 @@ Debug main function for checking specifically the functions within the file. Get
 
     op = get_operation(".data");
     printf(".data: is_comamnd %d is_directive %d\n", is_command(op), is_directive(op));
+    
+    tmp1 = immediate;
+    tmp2 = immediate;
+    printf("Addressing validation checking- 1 : %d 0 : %d 1: %d 0: %d 1: %d\n", validate_args(cmp, tmp1, tmp2), validate_args(mov, tmp1, tmp2), validate_args(prn, tmp1, undefined_addressing), validate_args(prn, tmp1, tmp2), validate_args(stop, undefined_addressing, undefined_addressing));
+    printf("Commands arg amount: 2 : %d 1 : %d 0 : %d\n", get_command_arg_amount(mov), get_command_arg_amount(not), get_command_arg_amount(stop));
     return 0;
   }
 #endif
