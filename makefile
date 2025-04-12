@@ -1,7 +1,7 @@
 assembler: assembler/assembler.exe
 
-assembler/assembler.exe: assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/addressing.o assembler/pre_assembler.o assembler/assembler.o
-	gcc -ansi -Wall -pedantic -o assembler.exe assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/addressing.o assembler/pre_assembler.o assembler/assembler.o
+assembler/assembler.exe: assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o
+	gcc -ansi -Wall -pedantic -o assembler.exe assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o
 
 assembler/io_utils.o: assembler/io_utils.c assembler/io_utils.h assembler/boolean.h
 	gcc -ansi -Wall -pedantic -c assembler/io_utils.c -o assembler/io_utils.o
@@ -29,6 +29,9 @@ assembler/registers.o: assembler/registers.c assembler/registers.h
 
 assembler/addressing.o: assembler/addressing.c assembler/addressing.h assembler/registers.h
 	gcc -ansi -Wall -pedantic -c assembler/addressing.c -o assembler/addressing.o
+
+assembler/symbol.o: assembler/symbol.c assembler/symbol.h assembler/linked_list.h
+	gcc -ansi -Wall -pedantic -c assembler/symbol.c -o assembler/symbol.o
 
 assembler/pre_assembler.o: assembler/pre_assembler.c assembler/pre_assembler.h assembler/linked_list.h assembler/boolean.h assembler/macro.h assembler/operations.h assembler/arg_utils.h assembler/io_utils.h
 	gcc -ansi -Wall -pedantic -c assembler/pre_assembler.c -o assembler/pre_assembler.o 
