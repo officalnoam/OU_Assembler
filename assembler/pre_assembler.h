@@ -62,6 +62,8 @@
     char* base_file: The base name of the file the pre assembler is run on.
     bool* error_reached: Signifies if an error is reached during the pre assembler duration of the file. If error is reached- set to true, and further
 			 assembler stages won't be ran.
+  Output-
+    Node*: The head of the macro linked list. This will be used to check that the symbols don't have the same name as a macro.
   */
-  void pre_assembler(char* base_file, bool* error_reached);
+  Node* pre_assembler(char* base_file, bool* error_reached);
 #endif

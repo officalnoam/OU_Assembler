@@ -152,7 +152,7 @@ If the line is calling a defined macro- do not write the current line and instea
 If the line is defining a macro- pass the handling to handle_macro
 Otherwise, write the line in the output file.
 */
-void pre_assembler(char* base_file, bool* error_reached)
+Node* pre_assembler(char* base_file, bool* error_reached)
 {
   int i = 0;
   int j;
@@ -171,7 +171,7 @@ void pre_assembler(char* base_file, bool* error_reached)
   if (input_file_name == NULL || output_file_name == NULL)
   {
     teardown_all(input_file, output_file, input_file_name, output_file_name, head);
-    return;
+    return NULL;
   }
 
   /*Open files*/
@@ -181,7 +181,7 @@ void pre_assembler(char* base_file, bool* error_reached)
   if (input_file == NULL || output_file == NULL)
   {
     teardown_all(input_file, output_file, input_file_name, output_file_name, head);
-    return;
+    return NULL;
   }  
   
   while ((line = get_file_line(input_file, input_file_name, error_reached)) && !*error_reached)
@@ -229,7 +229,8 @@ void pre_assembler(char* base_file, bool* error_reached)
       {
         *error_reached = true;
         free(line);
-        return; 
+        teardown_all(input_file, output_file, input_file_name, output_file_name, head);
+        return NULL; 
       }
       
       handle_macro(input_file, &head, arg, input_file_name, &line_number, error_reached);
@@ -240,5 +241,7 @@ void pre_assembler(char* base_file, bool* error_reached)
     free(line);
   }
    
-  teardown_all(input_file, output_file, input_file_name, output_file_name, head);
+  /*Do not free the macro linked list- the pre assembler was successful so we want to return it*/
+  teardown_all(input_file, output_file, input_file_name, output_file_name, NULL);
+  return head;
 }
