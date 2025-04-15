@@ -4,31 +4,8 @@
   #include <stdio.h>
   
   #define PRE_ASSEMBLER
-  #define SUFFIX_SIZE 3
   #define INPUT_SUFFIX ".as"
   #define OUTPUT_SUFFIX ".am"
-  
-  /*
-  This function will create a full file name from the base file name and a suffix.
-  
-  Input-
-    char* base_file_name: The base file name.
-    char* suffix: The suffix being added.
-  Output-
-    char*: The full file name.
-  */
-  char* create_full_file_name(char* base_file_name, char* suffix);
-  
-  /*
-  This function will open an input and output file.
-  
-  Input-
-    FILE** input_file: The input file.
-    FILE** output_file: The output file.
-    char* input_file_name: The name of the input file.
-    char* output_file_name: The name of the output file.
-  */
-  void open_files(FILE** input_file, FILE** output_file, char* input_file_name, char* output_file_name);
   
   /*
   This function will teardown all of the things that need to be closed in the pre assembler. If they are NULL- they won't be freed.
