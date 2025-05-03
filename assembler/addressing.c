@@ -13,6 +13,9 @@ addressing get_addressing(char* str)
   int i;
   registers reg;
 
+  if (str == NULL)
+    return undefined_addressing;
+
   /*The first character being a # signifies the string being immediate addressing.*/  
   if (str[0] == '#')
     return immediate;
