@@ -22,12 +22,12 @@
   to binary.
   
   Input-
-    char* num: The number being converted.
+    int num: The number being converted.
     int bit_amount: The bit amount for the binary object. 
   Output-
     binary*: The created binary.
   */  
-  binary* convert_num_to_binary(char* num, int bit_amount);
+  binary* convert_num_to_binary(int num, int bit_amount);
   
   /*
   This function will convert binary to the base four.

@@ -27,17 +27,14 @@ void convert_bin_to_negative(binary* bin)
 }
  
 /*
-Check if the num is positive or negative
-Parse the number into an int.
 Save the int as binary- by checking the % of 2 and dividing by 2. Save the first bit as 0 as a sign signifier.
 Push all of the bits to the end of the binary object.
 If the number is negative- convert the binary into a negative.
 */
-binary* convert_num_to_binary(char* num, int bit_amount)
+binary* convert_num_to_binary(int num, int bit_amount)
 {
-  int i;
-  int j = 1;
-  int actual_num = 0;
+  int i = 1;
+  int temp = num;
   bool is_negative = false;
   binary* bin = (binary*) malloc(sizeof(binary));
   
@@ -54,39 +51,29 @@ binary* convert_num_to_binary(char* num, int bit_amount)
     perror("Memory allocation error.\n");
     return NULL;
   }
+
+  if (num < 0)
+  {
+    temp = num * -1;
+    is_negative = true;
+  }
   
   bin->size = 1;
   bin->bits[0] = 0;
   
-  /*Handle positive and negative size. First char is #, second is either start of num or -/+*/
-  if (num[1] == '-')
-  {
-    is_negative = true;
-    i = 2;
-  }
-  else if (num[1] == '+')
-    i = 2;
-  else
-    i = 1;
-
-  /*Convert the num to an actual integer*/  
-  for (; i < strlen(num); i++)
-    actual_num = actual_num * 10 + (int) (num[i] - '0');
-  
-  
   /*Convert num to binary, without dealing with sign yet*/
-  while (actual_num != 0)
+  while (temp != 0)
   {
-    if (j == bit_amount)
+    if (i == bit_amount)
     {
-      printf("Error: number %s is out of range for supported nums.\n", num);
+      printf("Error: number %d is out of range for supported nums.\n", num);
       free_binary(bin);
       return NULL;
     }
 
-    bin->bits[j] = actual_num % 2;
-    actual_num = actual_num / 2;
-    j++;
+    bin->bits[i] = temp % 2;
+    temp = temp / 2;
+    i++;
     bin->size++;
   }
   
@@ -213,9 +200,9 @@ Debug main to specifically check the functions within the file.
   int main()
   {
     int i;
-    binary* bin1 = convert_num_to_binary("#-1", 2);
-    binary* bin2 = convert_num_to_binary("#+3", 3);
-    binary* bin3 = convert_num_to_binary("#1", 2);
+    binary* bin1 = convert_num_to_binary(-1, 2);
+    binary* bin2 = convert_num_to_binary(+3, 3);
+    binary* bin3 = convert_num_to_binary(1, 2);
     binary* bin = NULL; 
     char* temp = NULL;
     

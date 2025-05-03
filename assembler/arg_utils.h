@@ -39,4 +39,14 @@
     char*: The parsed argument. NULL if there is a syntax error within the line. 
   */
   char* get_argument(char* line, int* i, int line_num, char* file_name, bool starts_with_comma, bool last_argument);
+  
+  /*
+  This function will convert the string of an int into an integer.
+
+  Input-
+    char* str: The string of the int.asm
+  Output-
+    int*: The int.
+  */
+  int* convert_str_to_int(char* str);
 #endif

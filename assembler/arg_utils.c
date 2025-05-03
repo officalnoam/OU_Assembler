@@ -2,6 +2,8 @@
 #include "string_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
 /*
 Check if the line is a comment by comparing the first char in the line to ';'
@@ -98,6 +100,55 @@ char* get_argument(char* line, int* i, int line_num, char* file_name, bool start
 }
 
 /*
+Move passed the # if it exists, check if the number is a minus or not- and validate the string is a num.
+Otherwise NULL will be returned.
+*/
+int* convert_str_to_int(char* str)
+{
+  int i = 0;
+  bool is_negative = false;
+  int* actual_num = NULL;
+
+  actual_num = (int*) malloc(sizeof(int));
+
+  if (actual_num == NULL)
+  {
+    printf("Memory allocation failure.\n");
+    return NULL;
+  }
+
+  *actual_num = 0;
+
+  if (str[i] == '#')
+    i++;
+
+  if (str[i] == '-')
+  {
+    is_negative = true;
+    i++;
+  }
+  else if (str[i] == '+')
+    i++;
+  
+  /*Convert string to the num*/
+  for (; i < strlen(str); i++)
+  {
+    if (!isdigit(str[i]))
+    {
+      printf("Inputted number %s contains non digit characters.\n", str);
+      free(actual_num);
+      return NULL;
+    }
+    *actual_num = *actual_num * 10 + (int) (str[i] - '0');
+  }
+
+  if (is_negative)
+    *actual_num = *actual_num * -1;
+
+  return actual_num;
+}
+
+/*
 This is a debug main function, used to check the functions within this file.
 */
 #ifdef DEBUG_ARGS
@@ -108,6 +159,7 @@ This is a debug main function, used to check the functions within this file.
     char* str2 = "\t\t\t   \t\n";
     char* str3 = ";This is a comment!!!!\n";
     char* tmp = NULL;
+    int* tmp2 = NULL;
     printf("Is whitespace line (NO)? %d Comment (NO)? %d\n", is_line_whitespaces(str, &i), is_line_comment(str));
     i = 0;
     printf("Is whitespace line (YES)? %d Comment (YES)? %d\n", is_line_whitespaces(str2, &i), is_line_comment(str3));
@@ -143,6 +195,16 @@ This is a debug main function, used to check the functions within this file.
     tmp = get_argument(str, &i, 1, "temp.txt", true, true);
     printf("Second arg %s\n", tmp);
     free(tmp);
+
+    tmp2 = convert_str_to_int("1");
+    printf("Should be 1: %d\n", *tmp2 == 1);
+    free(tmp2);
+    tmp2 = convert_str_to_int("#+1");
+    printf("Should be 1: %d\n", *tmp2 == 1);
+    free(tmp2);
+    tmp2 = convert_str_to_int("-1");
+    printf("Should be 1: %d\n", *tmp2 == -1);
+    free(tmp2);
     return 0;
   }
 #endif
