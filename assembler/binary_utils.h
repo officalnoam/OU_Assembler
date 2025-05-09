@@ -60,4 +60,15 @@
     binary* bin: the binary being freed.
   */
   void free_binary(binary* bin);
+
+  /*
+  Free multiple binaries.
+
+  Input-
+    binary* bin1: The first binary.
+    binary* bin2: The second binary.
+    binary* bin3: The third binary.
+    binary* bin4: The fourth binary.
+  */
+  void free_multiple_binary(binary* bin1, binary* bin2, binary* bin3, binary* bin4);
 #endif

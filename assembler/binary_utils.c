@@ -193,6 +193,21 @@ void free_binary(binary* bin)
   free(bin);
 }
 
+void free_multiple_binary(binary* bin1, binary* bin2, binary* bin3, binary* bin4)
+{
+  if (bin1 != NULL)
+    free_binary(bin1);
+  
+  if (bin2 != NULL)
+    free_binary(bin2);
+
+  if (bin3 != NULL)
+    free_binary(bin3);
+  
+  if (bin4 != NULL)
+    free_binary(bin4);
+}
+
 /*
 Debug main to specifically check the functions within the file.
 */
