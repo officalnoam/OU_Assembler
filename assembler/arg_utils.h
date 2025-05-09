@@ -1,5 +1,6 @@
 #ifndef ARG_UTILS
   #include "boolean.h"
+  #include "registers.h"
 
   #define ARG_UTILS
   #define ARG_LEN 81
@@ -49,4 +50,15 @@
     int*: The int.
   */
   int* convert_str_to_int(char* str);
+
+  /*
+  This function will parse a matrix name and two registers from an argument.
+
+  Input-
+    char* str: The argument.
+    char** mat_name: A pointer that will be set to the matrix name.
+    registers* mat_reg_row: A pointer to register of the matrix row.
+    registers* mat_reg_col: A pointer to the register of the matrix column.
+  */
+  void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, registers* mat_reg_col);
 #endif

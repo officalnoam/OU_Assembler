@@ -149,6 +149,58 @@ int* convert_str_to_int(char* str)
 }
 
 /*
+Will go over the string, will copy it until reaching []s, and parse the registers within them.
+*/
+void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, registers* mat_reg_col)
+{
+  int i = 0;
+  int j = 0;
+  char temp[2];
+  
+  *mat_name = (char*) malloc(sizeof(char) * ARG_LEN);
+
+  if (*mat_name == NULL)
+  {
+    printf("Memory allocation failure.\n");
+    return;
+  }
+
+  while (str[i] != '\0' && str[i] != '\n' && str[i] != '[')
+  {
+    (*mat_name)[j] = str[i];
+    i++;
+    j++;
+  }
+
+  (*mat_name)[j] = '\0';
+
+  if (strlen(str) != i + 8 || str[i] != '[' || str[i + 3] != ']' || str[i + 4] != '[' || str[i + 7] != ']')
+  {
+    printf("Inputted matrix arg isn't in proper format.\n");
+    free(*mat_name);
+    *mat_name = NULL;
+    return;
+  }
+
+  temp[0] = str[i + 1];
+  temp[1] = str[i + 2];
+  *mat_reg_row = get_register(temp);
+  
+  temp[0] = str[i + 5];
+  temp[1] = str[i + 6];
+  *mat_reg_col = get_register(temp);
+  
+  if (*mat_reg_row == undefined_register || *mat_reg_col == undefined_register)
+  {
+    printf("Inputted matrix registers aren't actually registers.\n");
+    free(*mat_name);
+    *mat_name = NULL;
+    return;
+  }
+
+}
+
+/*
 This is a debug main function, used to check the functions within this file.
 */
 #ifdef DEBUG_ARGS
@@ -160,6 +212,10 @@ This is a debug main function, used to check the functions within this file.
     char* str3 = ";This is a comment!!!!\n";
     char* tmp = NULL;
     int* tmp2 = NULL;
+    char* mat_name = NULL;
+    registers reg_row = undefined_register;
+    registers reg_col = undefined_register;
+
     printf("Is whitespace line (NO)? %d Comment (NO)? %d\n", is_line_whitespaces(str, &i), is_line_comment(str));
     i = 0;
     printf("Is whitespace line (YES)? %d Comment (YES)? %d\n", is_line_whitespaces(str2, &i), is_line_comment(str3));
@@ -205,6 +261,13 @@ This is a debug main function, used to check the functions within this file.
     tmp2 = convert_str_to_int("-1");
     printf("Should be 1: %d\n", *tmp2 == -1);
     free(tmp2);
+
+    parse_matrix_argument("MAT[r2][r3]", &mat_name, &reg_row, &reg_col);
+    printf("%s Should be 1: %d %d\n", mat_name, reg_row == r2, reg_col == r3);
+    free(mat_name);
+    mat_name = NULL;
+    parse_matrix_argument("MAT[][r3]", &mat_name, &reg_row, &reg_col);
+    printf("Should be 1: %d\n", mat_name == NULL);
     return 0;
   }
 #endif

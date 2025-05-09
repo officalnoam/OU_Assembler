@@ -18,7 +18,7 @@ assembler/operations.o: assembler/operations.c assembler/operations.h assembler/
 assembler/string_utils.o: assembler/string_utils.c assembler/string_utils.h assembler/boolean.h
 	gcc -ansi -Wall -pedantic -c assembler/string_utils.c -o assembler/string_utils.o
 
-assembler/arg_utils.o: assembler/arg_utils.c assembler/arg_utils.h assembler/boolean.h assembler/string_utils.h
+assembler/arg_utils.o: assembler/arg_utils.c assembler/arg_utils.h assembler/boolean.h assembler/string_utils.h registers.h
 	gcc -ansi -Wall -pedantic -c assembler/arg_utils.c -o assembler/arg_utils.o
 
 assembler/binary_utils.o: assembler/binary_utils.c assembler/binary_utils.h assembler/boolean.h
