@@ -1,8 +1,8 @@
 #include "binary_utils.h"
-#include "boolean.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 /*Change all 0s to 1 and vice versa, and then add 1*/
 void convert_bin_to_negative(binary* bin)
@@ -28,66 +28,33 @@ void convert_bin_to_negative(binary* bin)
  
 /*
 Save the int as binary- by checking the % of 2 and dividing by 2. Save the first bit as 0 as a sign signifier.
-Push all of the bits to the end of the binary object.
 If the number is negative- convert the binary into a negative.
 */
-binary* convert_num_to_binary(int num, int bit_amount)
-{
-  int i = 1;
-  int temp = num;
-  bool is_negative = false;
-  binary* bin = (binary*) malloc(sizeof(binary));
-  
-  if (bin == NULL)
-  {
-    perror("Memory allocation error.\n");
+binary* convert_num_to_binary(int num, int bit_amount, bool override_negative) {
+  int i;
+  int value = num;
+  binary* bin = malloc(sizeof(binary));
+  if (bin == NULL) 
     return NULL;
-  }
-  
-  bin->bits = (int*) malloc(sizeof(int) * bit_amount);
-  
-  if (bin->bits == NULL)
-  {
-    perror("Memory allocation error.\n");
+
+  bin->bits = malloc(sizeof(int) * bit_amount);
+  if (bin->bits == NULL) 
     return NULL;
+
+  if (value < 0 && !override_negative) 
+    value *= -1;
+
+  for (i = bit_amount - 1; i >= 0; i--) 
+  {
+    bin->bits[i] = value % 2;
+    value /= 2;
   }
 
-  if (num < 0)
-  {
-    temp = num * -1;
-    is_negative = true;
-  }
-  
-  bin->size = 1;
-  bin->bits[0] = 0;
-  
-  /*Convert num to binary, without dealing with sign yet*/
-  while (temp != 0)
-  {
-    if (i == bit_amount)
-    {
-      printf("Error: number %d is out of range for supported nums.\n", num);
-      free_binary(bin);
-      return NULL;
-    }
-
-    bin->bits[i] = temp % 2;
-    temp = temp / 2;
-    i++;
-    bin->size++;
-  }
-  
-  /*Push all of the bits to the left side of the binary*/
-  for (i = 1; i < bit_amount - bin->size + 1; i++)
-  {
-    bin->bits[bit_amount - i] = bin->bits[i];
-    bin->bits[i] = 0;
-  };
   bin->size = bit_amount;
 
-  if (is_negative)
-    convert_bin_to_negative(bin);
-  
+  if (num < 0 && !override_negative)
+      convert_bin_to_negative(bin);
+
   return bin;
 }
 
@@ -140,16 +107,17 @@ binary* create_byte(binary* bin1, binary* bin2, binary* bin3, binary* bin4)
   
   bin->bits = (int*) malloc(BITS_IN_BYTE * sizeof(binary));
  
-  for (i = 0; i < BITS_IN_BYTE; i++)
-    bin->bits[i] = 0;
-  bin->size = BITS_IN_BYTE;
- 
-  if (bin == NULL)
+  if (bin->bits == NULL)
   {
     perror("Memory allocation failed.\n");
     free(bin);
     return NULL;
   }
+
+  for (i = 0; i < BITS_IN_BYTE; i++)
+    bin->bits[i] = 0;
+  bin->size = BITS_IN_BYTE;
+ 
   
   if (bin1 != NULL)
   {
@@ -159,6 +127,7 @@ binary* create_byte(binary* bin1, binary* bin2, binary* bin3, binary* bin4)
       j++;
     }
   }
+
   if (bin2 != NULL)
   {
     for (i = 0; i < bin2->size; i++)
@@ -175,10 +144,12 @@ binary* create_byte(binary* bin1, binary* bin2, binary* bin3, binary* bin4)
       j++;
     }
   }
+
   if (bin4 != NULL)
   {
-    for (i = 0; i < bin4->size; j++)
+    for (i = 0; i < bin4->size; i++)
     {
+      
       bin->bits[j] = bin3->bits[i];
       j++;
     }
@@ -208,6 +179,36 @@ void free_multiple_binary(binary* bin1, binary* bin2, binary* bin3, binary* bin4
     free_binary(bin4);
 }
 
+binary_or_str* create_binary_or_str(binary* bin, char* str)
+{
+  binary_or_str* bos = (binary_or_str*) malloc(sizeof(binary_or_str));
+
+  if (bos == NULL)
+  {
+    printf("Memory allocation error.\n");
+    return NULL;
+  }
+  
+  bos->bin = bin;
+  bos->str = str;
+
+  return bos;
+}
+
+void free_binary_or_str(binary_or_str* bos)
+{
+  if (bos->bin != NULL)
+  {
+    free_binary(bos->bin);
+  }
+  else
+  {
+    free(bos->str);
+  }
+
+  free(bos);
+}
+
 /*
 Debug main to specifically check the functions within the file.
 */
@@ -215,9 +216,9 @@ Debug main to specifically check the functions within the file.
   int main()
   {
     int i;
-    binary* bin1 = convert_num_to_binary(-1, 2);
-    binary* bin2 = convert_num_to_binary(+3, 3);
-    binary* bin3 = convert_num_to_binary(1, 2);
+    binary* bin1 = convert_num_to_binary(-1, 2, false);
+    binary* bin2 = convert_num_to_binary(+3, 3, false);
+    binary* bin3 = convert_num_to_binary(1, 2, false);
     binary* bin = NULL; 
     char* temp = NULL;
     
