@@ -200,6 +200,48 @@ void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, r
 
 }
 
+Node* convert_str_to_int_list(char* line, int* i, int line_num, char* file_name)
+{
+  Node* head = NULL;
+  Node* temp = NULL;
+  int* parsed_int = NULL;
+  char* str_num = NULL;
+  bool starts_with_comma = false;
+  bool not_last_arg = true;
+
+  while (not_last_arg)
+  {
+    not_last_arg = str_contains_additional_num_arg(line, *i + 1);
+    str_num = get_argument(line, i, line_num, file_name, starts_with_comma, !not_last_arg);
+
+    starts_with_comma = true;
+    
+    if (str_num == NULL)
+    {
+      teardown_linked_list(head, free);
+      return NULL;
+    }
+
+    parsed_int = convert_str_to_int(str_num);
+    free(str_num);
+
+    if (parsed_int == NULL)
+    {
+      teardown_linked_list(head, free);
+      return NULL;
+    }
+
+    temp = create_node(parsed_int);
+
+    if (head == NULL)
+      head = temp;
+    else
+      add_node_to_end(head, temp);    
+  }
+
+  return head;
+}
+
 /*
 This is a debug main function, used to check the functions within this file.
 */
@@ -215,6 +257,8 @@ This is a debug main function, used to check the functions within this file.
     char* mat_name = NULL;
     registers reg_row = undefined_register;
     registers reg_col = undefined_register;
+    Node* head = NULL;
+    Node* temp = NULL;
 
     printf("Is whitespace line (NO)? %d Comment (NO)? %d\n", is_line_whitespaces(str, &i), is_line_comment(str));
     i = 0;
@@ -268,6 +312,19 @@ This is a debug main function, used to check the functions within this file.
     mat_name = NULL;
     parse_matrix_argument("MAT[][r3]", &mat_name, &reg_row, &reg_col);
     printf("Should be 1: %d\n", mat_name == NULL);
+
+    i = 0;
+    head = convert_str_to_int_list("1, 2, 3,4,  5", &i, 1, "hello");
+    temp = head;
+    while (temp != NULL)
+    {
+      printf("%d ", *(int*)(temp->data));
+      temp = temp->next;
+    }
+    printf("\n");
+
+    teardown_linked_list(head, free);
+
     return 0;
   }
 #endif

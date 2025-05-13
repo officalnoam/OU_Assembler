@@ -1,6 +1,7 @@
 #ifndef ARG_UTILS
   #include "boolean.h"
   #include "registers.h"
+  #include "linked_list.h"
 
   #define ARG_UTILS
   #define ARG_LEN 81
@@ -61,4 +62,6 @@
     registers* mat_reg_col: A pointer to the register of the matrix column.
   */
   void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, registers* mat_reg_col);
+
+  Node* convert_str_to_int_list(char* line, int* i, int line_num, char* file_name);
 #endif
