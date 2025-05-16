@@ -200,7 +200,7 @@ void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, r
 
 }
 
-Node* convert_str_to_int_list(char* line, int* i, int line_num, char* file_name)
+Node* parse_int_list(char* line, int* i, int line_num, char* file_name)
 {
   Node* head = NULL;
   Node* temp = NULL;
@@ -240,6 +240,91 @@ Node* convert_str_to_int_list(char* line, int* i, int line_num, char* file_name)
   }
 
   return head;
+}
+
+int* parse_matrix_definition(char* line, int* i, int line_num, char* file_name, Node** parsed_int_list)
+{
+  int j;
+  int temp = 0;
+  char* arg = get_argument(line, i, line_num, file_name, false, false);
+  int* matrix_items = NULL; 
+
+  if (arg == NULL)
+    return NULL;
+
+  if (arg[0] != '[' || arg[strlen(arg) - 1] != ']')
+  {
+    printf("Incorrect format for matrix definition in %d line of %s file\n", line_num, file_name);
+    free(arg);
+    return NULL;
+  }
+
+  matrix_items = (int*) malloc(sizeof(int));
+  
+  if (matrix_items == NULL)
+  {
+    perror("Memory allocation failure.\n");
+    free(arg);
+    return NULL;
+  }
+
+  *matrix_items = 0;
+
+  /*Parse the row and column definition. Multiply both to get the matrix items*/
+  for (j = 1; j < strlen(arg) - 1; j++)
+  {
+    if (isdigit(arg[j]))
+      temp = temp * 10 + (arg[j] - '0');
+
+    /*Handle the seperation between the row and column amounts*/
+    else if (arg[j] == ']')
+    {
+      j++;
+      if (arg[j] != '[')
+      {
+        printf("Incorrect format for matrix definition in %d line of %s file\n", line_num, file_name);
+        free(arg);
+        free(matrix_items);
+        return NULL;
+      }
+      *matrix_items = temp;
+      temp = 0;
+    }
+    else
+    {
+      printf("Incorrect format for matrix definition in %d line of %s file\n", line_num, file_name);
+      free(arg);
+      free(matrix_items);
+      return NULL;
+    }
+  }
+
+  /*If the matrix items is still 0 - then there was only one square bracket and not two.*/
+  if (*matrix_items == 0)
+  {
+    printf("Incorrect format for matrix definition in %d line of %s file\n", line_num, file_name);
+    free(arg);
+    free(matrix_items);
+    return NULL;
+  }
+
+  *matrix_items = *matrix_items * temp;
+
+  /*If there is nothing left for the rest of the line- no need to parse an int list*/
+  if (is_line_whitespaces(line, i))
+    return matrix_items;
+
+  *parsed_int_list = parse_int_list(line, i, line_num, file_name);
+
+  /*Handle failure with int list*/
+  if (*parsed_int_list == NULL)
+  {
+    free(arg);
+    free(matrix_items);
+    return NULL;
+  }
+
+  return matrix_items;
 }
 
 /*
@@ -314,13 +399,29 @@ This is a debug main function, used to check the functions within this file.
     printf("Should be 1: %d\n", mat_name == NULL);
 
     i = 0;
-    head = convert_str_to_int_list("1, 2, 3,4,  5", &i, 1, "hello");
+    head = parse_int_list("1, 2, 3,4,  5", &i, 1, "hello");
     temp = head;
     while (temp != NULL)
     {
       printf("%d ", *(int*)(temp->data));
       temp = temp->next;
     }
+    printf("\n");
+
+    teardown_linked_list(head, free);
+
+    i = 4;
+    tmp2 =  parse_matrix_definition(".mat [2][3] +1, -3, 2", &i, 1, "hello", &head);
+    printf("Should be 1: %d\n", *tmp2 == 6);
+    free(tmp2);
+
+    temp = head;
+    while (temp != NULL)
+    {
+      printf("%d ", *(int*)(temp->data));
+      temp = temp->next;
+    }
+
     printf("\n");
 
     teardown_linked_list(head, free);

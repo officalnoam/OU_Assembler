@@ -63,5 +63,28 @@
   */
   void parse_matrix_argument(char* str, char** mat_name, registers* mat_reg_row, registers* mat_reg_col);
 
-  Node* convert_str_to_int_list(char* line, int* i, int line_num, char* file_name);
+  /*
+  This function will parse an int list into a linked list of integers.
+
+  Input-
+    char* line: The line being parsed.
+    int* i: A pointer to the integer to start the parse from.
+    int line_num: The number of the line being parsed.
+    char* file_name: The name of the file being parsed.
+  */
+  Node* parse_int_list(char* line, int* i, int line_num, char* file_name);
+
+  /*
+  This function will parse the definition of a matrix.
+  
+  Input-
+    char* line: the line being parsed.
+    int* i: A pointer to the integer to start the parse from.
+    int line_num: The number of the line being parsed.
+    char* file_name: the name of the file being parsed.
+    Node** parsed_int_list: A pointer to the head of a linked list of parsed integers. If none are defined- will be NULL.
+  Output-
+    int*: A pointer to the amount of items in the matrix. If parsing fails- will be NULL.
+  */
+  int* parse_matrix_definition(char* line, int* i, int line_num, char* file_name, Node** parsed_int_list);
 #endif
