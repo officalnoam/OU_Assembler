@@ -150,7 +150,7 @@ binary* create_byte(binary* bin1, binary* bin2, binary* bin3, binary* bin4)
     for (i = 0; i < bin4->size; i++)
     {
       
-      bin->bits[j] = bin3->bits[i];
+      bin->bits[j] = bin4->bits[i];
       j++;
     }
   }
