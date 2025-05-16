@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+Free the command, target and source if they aren't NULL.
+*/
 void free_command_and_args(char* command, char* target, char* source)
 {
   addressing source_addressing = get_addressing(source);
@@ -22,6 +25,9 @@ void free_command_and_args(char* command, char* target, char* source)
     free(source);
 }
 
+/*
+Check if the first argument in the line is a symbol or not according to the symbol syntax (:).
+*/
 bool has_symbol(char* line, char* file_name, int line_num)
 {
   int i = 0;
@@ -32,6 +38,10 @@ bool has_symbol(char* line, char* file_name, int line_num)
   return false;
 }
 
+/*
+Convert the opcode of the command to binary, and then convert the addressing of the arguments to binary,
+Create from those binaries a command byte.
+*/
 void create_command_byte(operation op, char* target, char* source, Node** head, char* file_name, int line_num)
 {
   addressing source_addressing = get_addressing(source);
@@ -79,6 +89,9 @@ void create_command_byte(operation op, char* target, char* source, Node** head, 
   *head = create_node(bos);
 }
 
+/*
+Convert the argument to a byte, based on the addressing of the argument.
+*/
 void create_arg_byte(char* arg, Node** head, bool is_target)
 {
   addressing arg_addressing = get_addressing(arg);
@@ -175,6 +188,9 @@ void create_arg_byte(char* arg, Node** head, bool is_target)
   }
 }
 
+/*
+Create the bytes for both arguments (if they are not NULL).
+*/
 void create_arg_bytes(char* target, char* source, Node** head)
 {
   addressing source_addressing = get_addressing(source);
@@ -221,7 +237,10 @@ void create_arg_bytes(char* target, char* source, Node** head)
   create_arg_byte(target, head, false);
 }
 
-Node* handle_command(char* command, char* line, int* i, int* dc, char* file_name, int line_num)
+/*
+Conver the entire command to bytes.
+*/
+Node* handle_command(char* command, char* line, int* i, int* ic, char* file_name, int line_num)
 {
   operation op = get_operation(command);
   int arg_amount = get_command_arg_amount(op); 
@@ -289,7 +308,7 @@ Node* handle_command(char* command, char* line, int* i, int* dc, char* file_name
       bytes++;
     }
 
-    *dc = *dc + bytes;
+    *ic = *ic + bytes;
   }
   
   /*If the arg creation had a problem, and head was torn down- NULL will be returned when returning head anyways.*/
@@ -298,10 +317,164 @@ Node* handle_command(char* command, char* line, int* i, int* dc, char* file_name
 }
 
 /*
-Node* handle_directive(char* directive, char* line, int* i, int* dc, char* file_name, int line_num)
+Convert a directive to bytes.
+*/
+Node* handle_directive(char* directive, char* line, int* i, int* dc, char* file_name, int line_num, Node** externs, Node** entries)
 {
+  int j;
   operation op = get_operation(directive);
-}*/
+  char* arg = NULL;
+  char* symbol = NULL;
+  Node* head = NULL;
+  Node* temp = NULL;
+  Node* int_list_head = NULL;
+  Node* int_list_temp = NULL;
+  int* matrix_size = NULL;
+  int temp_value = 0;
+  binary* byte = NULL;
+
+  switch (op)
+  {
+    case data:
+      int_list_head = parse_int_list(line, i, line_num, file_name);
+      
+      /*Handle failure in parsing the list*/
+      if (int_list_head == NULL)
+      {
+        free(directive);
+        return NULL;
+      }
+
+      /*Convert each int to a byte*/
+      int_list_temp = int_list_head;
+      while (int_list_temp != NULL)
+      {
+        byte = convert_num_to_binary(*(int*)(int_list_temp->data), BITS_IN_BYTE, false);
+
+        temp = create_node(byte);
+        if (head == NULL)
+          head = temp;
+        else
+          add_node_to_end(head, temp);
+
+        *dc = *dc + 1;
+        int_list_temp = int_list_temp->next;
+      }
+
+      teardown_linked_list(int_list_head, free);
+      break;
+
+    case string:
+      arg = get_argument(line, i, line_num, file_name, false, true);
+
+      /*Check that get_argument worked*/
+      if (arg == NULL)
+      {
+        free(directive);
+        return NULL;
+      }
+      
+      /*Handle the string not being the proper format*/
+      if (strlen(arg) < 3 || arg[0] != '"' || arg[strlen(arg) - 1] != '"')
+      {
+        printf("String directive - %s in line %d file %s filename is improperly formatted", arg, line_num, file_name);
+        free(arg);
+        free(directive);
+        return NULL;
+      }
+
+      /*Convert each character to a byte.*/
+      for (j = 1; j < strlen(arg) - 1; j++)
+      {
+        byte = convert_num_to_binary((int) arg[j], BITS_IN_BYTE , false);
+        
+        temp = create_node(byte);
+        if (head == NULL)
+          head = temp;
+        else
+          add_node_to_end(head, temp);    
+      }
+      byte = convert_num_to_binary(0, BITS_IN_BYTE, true);
+      temp->next = create_node(byte);
+      *dc = *dc + strlen(arg) - 1;
+      free(arg);
+
+      break;
+      
+    case mat:
+      matrix_size = parse_matrix_definition(line, i, line_num, file_name, &int_list_head);
+      /*Handle the matrix argument not being a valid format*/
+      if (matrix_size == NULL)
+      {
+        free(directive);
+        return NULL;
+      }
+
+      int_list_temp = int_list_head;
+      for (j = 0; j < *matrix_size; j++)
+      {
+        temp_value = 0;
+        if (int_list_temp != NULL)
+        {
+          temp_value = *(int*)(int_list_temp->data);
+          int_list_temp = int_list_temp->next;
+        }
+        byte = convert_num_to_binary(temp_value, BITS_IN_BYTE, false);
+        
+        temp = create_node(byte);
+        if (head == NULL)
+          head = temp;
+        else
+          add_node_to_end(head, temp);
+        
+        *dc = *dc + 1;
+      }
+
+      free(matrix_size);
+      teardown_linked_list(int_list_head, free);
+      break;
+
+    case entry:
+      symbol = get_argument(line, i, line_num, file_name, false, true);
+
+      if (symbol == NULL)
+      {
+        free(directive);
+        return NULL;
+      }
+
+      temp = create_node(symbol);
+
+      if (*entries == NULL)
+        *entries = temp;
+      else
+        add_node_to_end(*entries, temp);
+      break;
+    
+    case extern_d:
+      symbol = get_argument(line, i, line_num, file_name, false, true);
+
+      if (symbol == NULL)
+      {
+        free(directive);
+        return NULL;
+      }
+
+      temp = create_node(symbol);
+
+      if (*externs == NULL)
+        *externs = temp;
+      else
+        add_node_to_end(*externs, temp);
+      break;
+    
+    default:
+      return NULL;
+  }
+
+  free(directive);
+  return head;
+}
 /*
 Node* handle_symbol(char* line, int* i, Node** symbols_list, Node* macro_list, int ic, int dc, char* file_name, int line_num)
 {
@@ -320,14 +493,15 @@ void first_stage(char* base_file, Node* macro_list, Node** symbols_list, Node** 
     int dc = 0;
     Node* head = NULL;
     Node* temp = NULL;
+    Node* entries = NULL;
+    Node* externs = NULL;
     binary_or_str* tmp = NULL;
-    char* command = (char*) malloc(4);
-
-    strcpy(command, "add");
+    char* operation = (char*) malloc(10);
+    strcpy(operation, "add\0");
 
     printf("Should be 1 : %d. Should be 0 : %d.\n", has_symbol("Symbol: hello world", "my", 0), has_symbol("Nope no symbols here", "nope", 1));
     
-    head = handle_command(command, "add #3, MAT[r2][r3]", &i, &dc, "hello world", 3);
+    head = handle_command(operation, "add #3, MAT[r2][r3]", &i, &dc, "hello world", 3);
     temp = head;
     while (temp != NULL)
     {
@@ -346,9 +520,34 @@ void first_stage(char* base_file, Node* macro_list, Node** symbols_list, Node** 
       }
       temp = temp->next;
     }
-    /*
+    printf("\n");
     teardown_linked_list(head, (void (*)(void *)) free_binary_or_str);
-    */
+    
+    operation = (char*) malloc(10);
+    strcpy(operation, ".mat");
+
+    i = 4;
+    dc = 0;
+    head = handle_directive(operation, ".mat [2][2] 1, 2, 3, 4", &i, &dc, "hello world", 4, &externs, &entries);
+    
+    operation = (char*) malloc(10);
+    strcpy(operation, ".string");
+    
+    i = 7;
+    temp = handle_directive(operation, ".string \"abcdef\"", &i, &dc, "hello world", 5, &externs, &entries);
+    
+    add_node_to_end(head, temp);
+    temp = head;
+    while (temp != NULL)
+    {
+      for (j = 0; j < BITS_IN_BYTE; j++)
+        printf("%d ", ((binary*)(temp->data))->bits[j]);
+      printf("\n");
+      temp = temp->next;
+    }
+    
+    teardown_linked_list(head, (void (*)(void*)) free_binary);
+    free(operation);
     return 0;
   }
 #endif
