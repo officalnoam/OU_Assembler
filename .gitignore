@@ -59,3 +59,4 @@ dkms.conf
 *.externals
 *.entries
 
+*.vscode*
