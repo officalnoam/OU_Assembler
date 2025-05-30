@@ -1,7 +1,7 @@
 assembler: assembler/assembler.exe
 
-assembler/assembler.exe: assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/file_utils.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o
-	gcc -ansi -Wall -pedantic -o assembler.exe assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/file_utils.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o
+assembler/assembler.exe: assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/file_utils.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o assembler/assembler_first_stage.o
+	gcc -ansi -Wall -pedantic -o assembler.exe assembler/io_utils.o assembler/linked_list.o assembler/macro.o assembler/string_utils.o assembler/arg_utils.o assembler/operations.o assembler/binary_utils.o assembler/registers.o assembler/file_utils.o assembler/addressing.o assembler/symbol.o assembler/pre_assembler.o assembler/assembler.o assembler/assembler_first_stage.o
 
 assembler/io_utils.o: assembler/io_utils.c assembler/io_utils.h assembler/boolean.h
 	gcc -ansi -Wall -pedantic -c assembler/io_utils.c -o assembler/io_utils.o
@@ -39,7 +39,10 @@ assembler/symbol.o: assembler/symbol.c assembler/symbol.h assembler/linked_list.
 assembler/pre_assembler.o: assembler/pre_assembler.c assembler/pre_assembler.h assembler/linked_list.h assembler/boolean.h assembler/macro.h assembler/operations.h assembler/arg_utils.h assembler/io_utils.h assembler/file_utils.h
 	gcc -ansi -Wall -pedantic -c assembler/pre_assembler.c -o assembler/pre_assembler.o 
 
-assembler/assembler.o: assembler/assembler.c assembler/pre_assembler.h assembler/boolean.h
+assembler/assembler_first_stage.o: assembler/assembler_first_stage.c assembler/assembler_first_stage.h assembler/operations.h assembler/boolean.h assembler/arg_utils.h assembler/string_utils.h assembler/addressing.h assembler/linked_list.h assembler/registers.h assembler/binary_utils.h assembler/symbol.h assembler/macro.h assembler/file_utils.h assembler/io_utils.h
+	gcc -ansi -Wall -pedantic -c assembler/assembler_first_stage.c -o assembler/assembler_first_stage.o
+
+assembler/assembler.o: assembler/assembler.c assembler/pre_assembler.h assembler/boolean.h assembler/assembler_first_stage.h
 	gcc -ansi -Wall -pedantic -c assembler/assembler.c -o assembler/assembler.o
 
 cleanup:

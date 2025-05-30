@@ -1,5 +1,6 @@
 #include "file_utils.h"
 #include <string.h>
+#include <stdlib.h>
 
 /*
 Manually allocate memory to a new variable- which is base_file_name + suffix.

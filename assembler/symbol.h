@@ -5,7 +5,7 @@
   
   typedef enum {
     code,
-    data,
+    data_sym,
     external
   } symbol_type;
   

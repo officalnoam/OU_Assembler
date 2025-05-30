@@ -5,9 +5,14 @@
 #include "linked_list.h"
 #include "registers.h"
 #include "binary_utils.h"
+#include "symbol.h"
+#include "macro.h"
+#include "file_utils.h"
+#include "io_utils.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /*
 Free the command, target and source if they aren't NULL.
@@ -475,15 +480,176 @@ Node* handle_directive(char* directive, char* line, int* i, int* dc, char* file_
   free(directive);
   return head;
 }
-/*
-Node* handle_symbol(char* line, int* i, Node** symbols_list, Node* macro_list, int ic, int dc, char* file_name, int line_num)
+void handle_symbol(char* line, int* i, Node** symbols_list, Node* macro_list, int* ic, int* dc, char* file_name, int line_num, Node** commands, Node** data_bin, Node** externs, Node** entries)
 {
   char* symbol_name = get_argument(line, i, line_num, file_name, false, false);
+  char* arg = NULL;
+  operation op;
+  symbol* sym = NULL;
+  Node* sym_node = NULL;
+  Node* binary = NULL;
+  
+  symbol_name[strlen(symbol_name) - 1] = '\0';
 
+  if (get_operation(symbol_name) != undefined || strlen(symbol_name) > 30 || !isalpha(symbol_name[0]) || find_macro_in_list(macro_list, symbol_name) != NULL || find_symbol_in_list(*symbols_list, symbol_name))
+  {
+    printf("Symbol name %s in file %s line %d is invalid. Will not save symbol.\n", symbol_name, file_name, line_num);
+    free(symbol_name);
+    symbol_name = NULL;
+  }
+
+  arg = get_argument(line, i, line_num, file_name, false, false);
+
+  if (arg == NULL)
+  {
+    free(symbol_name);
+    return;
+  }
+
+  op = get_operation(arg);
+
+  if (symbol_name != NULL)
+  {
+    sym = (symbol*) malloc(sizeof(symbol));
+
+    if (sym == NULL)
+    {
+      perror("Memory allocation failure.\n");
+      return;
+    }
+    sym->name = symbol_name;
+  }
+
+  if (is_command(op))
+  {
+    if (sym != NULL)
+    {
+      sym->type = code;
+      sym->address = *ic;
+    }
+
+    binary = handle_command(arg, line, i, ic, file_name, line_num);
+
+    if (*commands == NULL)
+      *commands = binary;
+    else
+      add_node_to_end(*commands, binary);
+  }
+  else if (is_directive(op))
+  {
+    if (sym != NULL)
+    {
+      sym->type = data_sym;
+      sym->address = *dc;
+    }
+
+    binary = handle_directive(arg, line, i, dc, file_name, line_num, externs, entries);
+
+    if (*data_bin == NULL)
+      *data_bin = binary;
+    else
+      add_node_to_end(*data_bin, binary);
+  }
+  else
+  {
+    printf("Undefined operation in file %s line %d.\n", file_name, line_num);
+    if (sym != NULL)
+      free_symbol(sym);
+    free(arg);
+    return;
+  }
+  
+  /*Meaning handling the command or directive failed.*/
+  if (binary == NULL)
+  {
+    if (sym != NULL)
+      free_symbol(sym);
+    return;
+  }
+
+  if (sym != NULL)
+  {
+    sym_node = create_node(sym);
+    if (*symbols_list == NULL)
+      *symbols_list = sym_node;
+    else
+      add_node_to_end(*symbols_list, sym_node);
+  }
 }
 
-void first_stage(char* base_file, Node* macro_list, Node** symbols_list, Node** binary_lines, int* icf, int* dcf)
-*/
+void first_stage(char* base_file, Node* macro_list, Node** symbols_list, Node** commands, Node** data_bin, int* icf, int* dcf, Node** externs, Node** entries)
+{
+  char* first_arg = NULL;
+  char* line = NULL;
+  int i;
+  int line_num = 0;
+  FILE* input_file = NULL;
+  char* input_file_name = create_full_file_name(base_file, FIRST_STAGE_INPUT_SUFFIX);
+  operation op;
+  Node* binary = NULL;
+  bool error_reached = false; /*Needed for get_file_line, will be ignored*/
+
+  /*Check for memory allocation error when creating the file name*/
+  if (input_file_name == NULL)
+    return;
+
+  input_file = fopen(input_file_name, "r");
+  
+  /*Check that file was opened properly*/
+  if (input_file == NULL)
+  {
+    free(input_file_name);
+    return;
+  }
+
+  while ((line = get_file_line(input_file, input_file_name, &error_reached)))
+  {
+    i = 0;
+    line_num++;
+    /*Check if the line is a comment*/
+    if (is_line_comment(line) || is_line_whitespaces(line, &i))
+      continue;
+    
+    /*Handling line containing a symbol definition*/
+    if (has_symbol(line, input_file_name, line_num))
+    {
+      handle_symbol(line, &i, symbols_list, macro_list, icf, dcf, input_file_name, line_num, commands, data_bin, externs, entries);
+      continue;
+    }
+
+    first_arg = get_argument(line, &i, line_num, input_file_name, false, false);
+
+    /*Handling parsing failure*/
+    if (first_arg == NULL)
+      continue;
+
+    op = get_operation(first_arg);
+
+    if (is_command(op))
+    {
+      binary = handle_command(first_arg, line, &i, icf, input_file_name, line_num);
+
+      if (*commands == NULL)
+        *commands = binary;
+      else
+        add_node_to_end(*commands, binary);
+
+    }
+    /*Handle a directive*/
+    else if (is_directive(op))
+    {
+      binary = handle_directive(first_arg, line, &i, dcf, input_file_name, line_num, externs, entries);
+
+      if (*data_bin == NULL)
+        *data_bin = binary;
+      else
+        add_node_to_end(*data_bin, binary);
+    }
+    else
+      printf("Undefined operation in file %s line %d.\n", input_file_name, line_num);
+  }
+  free(input_file_name);
+}
 
 #ifdef DEBUG_FIRST_STAGE
   int main()
