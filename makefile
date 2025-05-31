@@ -42,7 +42,7 @@ assembler/pre_assembler.o: assembler/pre_assembler.c assembler/pre_assembler.h a
 assembler/assembler_first_stage.o: assembler/assembler_first_stage.c assembler/assembler_first_stage.h assembler/operations.h assembler/boolean.h assembler/arg_utils.h assembler/string_utils.h assembler/addressing.h assembler/linked_list.h assembler/registers.h assembler/binary_utils.h assembler/symbol.h assembler/macro.h assembler/file_utils.h assembler/io_utils.h
 	gcc -ansi -Wall -pedantic -c assembler/assembler_first_stage.c -o assembler/assembler_first_stage.o
 
-assembler/assembler.o: assembler/assembler.c assembler/pre_assembler.h assembler/boolean.h assembler/assembler_first_stage.h
+assembler/assembler.o: assembler/assembler.c assembler/pre_assembler.h assembler/boolean.h assembler/assembler_first_stage.h assembler/symbol.h assembler/binary_utils.h
 	gcc -ansi -Wall -pedantic -c assembler/assembler.c -o assembler/assembler.o
 
 cleanup:
