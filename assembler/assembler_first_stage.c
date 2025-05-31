@@ -234,9 +234,10 @@ void create_arg_bytes(char* target, char* source, Node** head)
     return;
   }
   
-  create_arg_byte(source, head, true);
+  if (source != NULL)
+    create_arg_byte(source, head, true);
 
-  if (*head == NULL || source == NULL)
+  if (*head == NULL || target == NULL)
     return;
 
   create_arg_byte(target, head, false);
@@ -275,8 +276,8 @@ Node* handle_command(char* command, char* line, int* i, int* ic, char* file_name
   }
   else if (arg_amount == 1)
   {
-    source = get_argument(line, i, line_num, file_name, false, true);
-    if (source == NULL)
+    target = get_argument(line, i, line_num, file_name, false, true);
+    if (target == NULL)
     {
       free_command_and_args(command, target, source);
       return NULL;
