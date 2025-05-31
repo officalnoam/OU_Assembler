@@ -8,21 +8,20 @@
 void convert_bin_to_negative(binary* bin)
 {
   int i;
+  int carry;
+  int sum;
   
   /*Flip all bits*/
   for (i = 0; i < bin->size; i++)
     bin->bits[i] = (bin->bits[i] + 1) % 2;
   
   /*Add one to the binary*/
+  carry = 1;
   for (i = bin->size - 1; i > 0; i--)
   {
-    if (bin->bits[i] == 0)
-      bin->bits[i] = 1;
-    else
-    {
-      bin->bits[i] = 0;
-      bin->bits[i-1] = (bin->bits[i-1] + 1) % 2;
-    }
+    sum = bin->bits[i] + carry;
+    bin->bits[i] = sum % 2;
+    carry = sum / 2;
   }
 }
  
