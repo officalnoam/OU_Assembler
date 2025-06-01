@@ -5,8 +5,7 @@
   
   typedef enum {
     code,
-    data_sym,
-    external
+    data_sym
   } symbol_type;
   
   typedef struct {
