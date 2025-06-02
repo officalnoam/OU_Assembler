@@ -200,7 +200,7 @@ void free_binary_or_str(binary_or_str* bos)
   {
     free_binary(bos->bin);
   }
-  else
+  else if (bos->str != NULL)
   {
     free(bos->str);
   }
