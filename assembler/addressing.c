@@ -36,6 +36,19 @@ addressing get_addressing(char* str)
   return direct;
 }
 
+int get_addressing_bytes(addressing address)
+{
+  switch (address)
+  {
+  case undefined_addressing:
+    return 0;
+  case matrix_access:
+    return 2;
+  default:
+    return 1;
+  }
+}
+
 /*Debug main function to check get_addressing*/
 #ifdef DEBUG_ADDRESSING
   int main()
