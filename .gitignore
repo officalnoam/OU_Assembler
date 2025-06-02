@@ -55,8 +55,8 @@ dkms.conf
 */testing_proof/*
 *.as
 *.am
-*.object
-*.externals
-*.entries
+*.ob
+*.ext
+*.ent
 
 *.vscode*
