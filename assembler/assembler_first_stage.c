@@ -383,7 +383,7 @@ Node* handle_directive(char* directive, char* line, int* i, int* dc, char* file_
       /*Handle the string not being the proper format*/
       if (strlen(arg) < 3 || arg[0] != '"' || arg[strlen(arg) - 1] != '"')
       {
-        printf("String directive - %s in line %d file %s filename is improperly formatted", arg, line_num, file_name);
+        printf("String directive - %s in line %d file %s filename is improperly formatted\n", arg, line_num, file_name);
         free(arg);
         free(directive);
         return NULL;
@@ -650,6 +650,7 @@ void first_stage(char* base_file, Node* macro_list, Node** symbols_list, Node** 
       printf("Undefined operation in file %s line %d.\n", input_file_name, line_num);
   }
   free(input_file_name);
+  fclose(input_file);
 }
 
 #ifdef DEBUG_FIRST_STAGE
