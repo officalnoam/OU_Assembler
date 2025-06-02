@@ -3,8 +3,7 @@
 #include "linked_list.h"
 #include "macro.h"
 #include "assembler_first_stage.h"
-#include "symbol.h"
-#include "binary_utils.h"
+#include "assembler_second_stage.h"
 #include <stdlib.h>
 
 int main(int argc, char** argv)
@@ -37,12 +36,8 @@ int main(int argc, char** argv)
     error_reached = false;
     macros = pre_assembler(argv[i], &error_reached);
     first_stage(argv[i], macros, &symbols_list, &commands, &data_bin, &icf, &dcf, &externs, &entries);
+    second_stage(argv[i], symbols_list, commands, data_bin, externs, entries, icf, dcf);
     teardown_linked_list(macros, (void (*)(void *)) free_macro);
-    teardown_linked_list(symbols_list, (void (*)(void *)) free_symbol);
-    teardown_linked_list(commands, (void (*)(void *)) free_binary_or_str);
-    teardown_linked_list(data_bin, (void (*)(void *)) free_binary);
-    teardown_linked_list(externs, free);
-    teardown_linked_list(entries, free);
   }
   return 0;
 }
